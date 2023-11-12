@@ -1,0 +1,1 @@
+<xml xmlns="https://developers.google.com/blockly/xml"><block type="bluetooth_on_connected" id="NH/J=.yecNH:*M|@Ot%/" x="0" y="0"><statement name="HANDLER"><block type="bluetooth_start_accelerometer_service" id="Qh~J2}(^~J}nT_h7Z5S!"><next><block type="bluetooth_start_button_service" id="CF6k^rBjh:gX3$32H{Bu"></block></next></block></statement></block></xml>
