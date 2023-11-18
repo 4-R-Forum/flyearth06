@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+  ],
+  "settings": {
+    "files.autoSave": "afterDelay",
+    "files.associations": {
+      "*.blocks": "html",
+      "*.jres": "json"
+    }
+  }
+}
