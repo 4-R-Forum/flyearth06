@@ -10,6 +10,17 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 # import Kasper
 from kaspersmicrobit import KaspersMicrobit
+# Kasper mbit functions
+def get_roll(x,y,z):
+  return  math.atan(x/math.sqrt(math.pow(y,2) + math.pow(z,2))) * 180 / math.pi # +ve go right
+def get_pitch(x,y,z):
+   return math.atan(y/math.sqrt(math.pow(x,2) + math.pow(z,2))) * 180 / math.pi # +ve go up
+def get_pitch_roll(microbit):
+  accel = microbit.accelerometer.read()
+  x = accel.x
+  y = accel.y
+  z = accel.z
+  return [ get_pitch(x,y,z) , get_roll(x,y,z) ] 
 # global variables
 global cmd_string # commands from microbit via serial, 'buttonA/B,pitch,roll'
 global port, button, pitch, roll, k, rk # for flying
@@ -56,48 +67,34 @@ for i in range(28):
   action.perform()
 ku(sh)
 """
-"""
 
-try:
-  port = serial.Serial(port = "COM3", baudrate=115200,bytesize=8, timeout=2, stopbits=serial.STOPBITS_ONE)
-except Exception as e:
-  sys.stdout.write("Cannot open Port COM3: ")
-  sys.stdout.writelines(str(e))
-  sys.exit()
-"""
 
 with KaspersMicrobit.find_one_microbit() as microbit:
   i = 0
   l = datetime.datetime.now()
 
   run = True
-  debug = True
-  test_cmds = ("0,0,0","0,30,0","0,30,-30","0,30,30","0,-30,0")
+  debug = False
+  #test_cmds = ("0,0,0","0,30,0","0,30,-30","0,30,30","0,-30,0")
   #             level     up        left     right      down
   test = 0
   while run :
     try:
       if debug == False :
         # request new cmd string from mbit
-        """
-        req = "$".encode("utf-8")
-        port.write(bytes(req))
-        # get response from mbit
-        cmd_string = port.readline().decode("utf-8")
-      else :
-        time.sleep(0.5)
-        cmd_string = test_cmds[test]
-        test += 1
-        if test == 5:
-          test = 0
-        """
-        # read pitch, roll , button from mbit
-        accel = microbit.accelerometer.read()
-        x = accel.x
-        y = accel.y
-        z = accel.z
-        pitch = math.atan(x/ math.sqrt(math.pow(y, 2) + math.pow(z, 2)))
-
+        res = get_pitch_roll(microbit)
+        pitch = res[0]
+        roll  = res[1]
+        #microbit.buttons.on_button_a(press=pressed)
+        a = microbit.buttons.read_button_a()
+        b = microbit.buttons.read_button_b()
+        button = 0
+        if a > 0 and b == 0:
+          button = 1 # look up
+        if a == 0 and b > 0:
+          button = -1 # look down
+        if a > 0 and b > 0:
+          button = 99 # stop Flying"
     except Exception as e:
       sys.stdout.write(str(e))
       break
@@ -108,6 +105,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
       n = datetime.datetime.now()
       e = n - l 
       l = n
+      '''
       cmds = cmd_string.split(",")
       if len(cmds) == 3  : # ignore not 3 commands
         try : # set values
@@ -118,7 +116,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
             run = False
         except: # use existing value
             pass
-      
+      '''
       if button !=  0:  # look up /down 
         # one time change view
         # ignore pitch/roll this loop

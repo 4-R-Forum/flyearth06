@@ -11,7 +11,7 @@ def pressed(button):
     print(f"button {button} pressed")
 
 def get_roll(x,y,z):
-  return  math.atan(x/math.sqrt(math.pow(y,2) + math.pow(z,2))) * -180 / math.pi
+  return  math.atan(x/math.sqrt(math.pow(y,2) + math.pow(z,2))) * 180 / math.pi
 def get_pitch(x,y,z):
    return math.atan(y/math.sqrt(math.pow(x,2) + math.pow(z,2))) *  180 / math.pi
 def get_pitch_roll(microbit):
