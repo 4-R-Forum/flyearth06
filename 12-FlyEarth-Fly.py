@@ -59,6 +59,7 @@ action.perform()
 ku(ctrl)
 input("Press shift and arrow multiple times to show horizon at top of screen")
 """
+
 #press shift arrow_down 28 times to start 3D view and show horizon at top of screen
 kd(sh)
 for i in range(28):
@@ -95,6 +96,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
           button = -1 # look down
         if a > 0 and b > 0:
           button = 99 # stop Flying"
+        cmd_string = "{button},{pitch},{roll}" # simulates prior serial string
     except Exception as e:
       sys.stdout.write(str(e))
       break
