@@ -25,11 +25,16 @@ def get_pitch_roll(microbit):
 global cmd_string # commands from microbit via serial, 'buttonA/B,pitch,roll'
 global port, button, pitch, roll, k, rk # for flying
 global i, e, l, n, m # message for logging
+global t1, t2 # thresholds for actions
 i = 0 # set initial value
+t1 = 20
+t2 = 40
 
 # create selenium objects
 # $By = [OpenQA.Selenium.By]
 driver = webdriver.Chrome()
+# action accumulates keystrokes which are applied at the next perform()
+# and the chain is emptied
 action = ActionChains(driver)
 
 # functions for keys
@@ -97,7 +102,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
           button = 1 # look up
         if a == 0 and b > 0:
           button = -1 # look down
-        if a > 0 and b > 0:
+        if a == 1 and b == 1:
           button = 99 # stop Flying"
         cmd_string = f"{button},{pitch},{roll}" # simulates prior serial string
     except Exception as e:
@@ -113,90 +118,49 @@ with KaspersMicrobit.find_one_microbit() as microbit:
       n = datetime.datetime.now()
       e = n - l 
       l = n
+    
+    # start of bee control
+    # start of pitch
+    if pitch > t2:
+      # go up
+      # go forward 1
+      print("go up, forward")
+    elif pitch > t1 :
+        print("forward")
+    elif pitch < -t2 :
+      # go down
+      # go back 1
+      print("go down, back")
+    elif pitch < -t1 :
+      # go back 1
+      print("back")
+    else :
+      # stay
+      print("no forward/back")
+    # end of pitch, start of roll
+    if roll > t2:
+      # go up
+      # go forward 1
+      print("turn right, go right")
+    elif roll > t1 :
+        print("go right")
+    elif roll < -t2 :
+      # go down
+      # go back 1
+      print("turn left, go left")
+    elif roll < -t1 :
+      # go back 1
+      print("go left")
+    else :
+      # stay
+      print("no left/right")
+    
+    time.sleep(2)
 
-      if button !=  0:  # look up /down 
-        # one time change view
-        # ignore pitch/roll this loop
-        # look up  = shift arrow down
-        kd(sh)
-        if button == 1:
-          k = ad
-          m += "LookUp"
-        else:
-          k = au
-          m += "LookDown"
-        kd(k)
-        ku(k)
-        ku(sh)
-        action.perform()
-        sys.stdout.write(str(i) + "\t" +str(e)  + "\t" + m + "\t" + cmd_string + "\r\n" )
-      elif (pitch < 20
-        and   pitch > -20
-        and   roll < 20
-        and   roll > -20):
-          # level, continuous fly forward
-          # ///TODO Sep-21-1 this is a bit too fast
-          ku(sh) # no shift
-          ku(pd) # stop going up
-          ku(pu)# stop going down
-          kd(au) # press and hold arrow up to keep going forward
-          action.perform()
-          m = "Level"
-          sys.stdout.write(str(i) + "\t" +str(e)  + "\t" + m + "\t" + cmd_string + "\r\n")
-          time.sleep(1)
-        # end of button and level
-      else:  
-        # need to change direction or altitude, do one or the other this loop
-        # direction first, repeat turn, no forward
-        ku(au) # stop going forward
-        ku(pd) # stop going up
-        ku(pu) # stop going down
-        ku(al) # stop going right
-        ku(ar) # stop going left
-        action.perform()
-        if ((roll > 20) 
-        or   (roll < -20) ): # if roll right or left
-          # roll, go left = Right arrow
-          kd(sh) # must shift
-          # act on roll before pitch
-          # works ok, but better if fwd too ///TODO Sep-21-2 how to repeat sh L/R, no shift up until next loop
-          rk = None
-          if roll > 0:
-            rk = al
-            m ="GoRight"
-          if roll < 0:
-            rk = ar
-            m ="GoLeft"
-          kd(rk) # no ku, so Earth keeps turning until no roll
-          ku(sh)
-          #kd(au)
-          action.perform()
-          sys.stdout.write(str(i) + "\t" +str(e)  + "\t" + m + "\t" + cmd_string + "\r\n")
-        # end of roll
-        #start pitch
-        else :
-          # no roll
-          # pitch, go down  = PageUp
-          # works ok
-          if pitch > 0:
-            kd(pd) # no ku, so Earth keeps going up until no pitch
-            m ="GoUp"
-          if pitch < 0:
-            # /// TODO Sep-21-3 how to find camera-altituede element?
-            #$altitude = $driver.FindElement($By::Id("camera-altitude"))
-            #if ($altitude -le 100 ){ kd $pu ; $m ="GoDown"}
-            kd(pu) # no ku,, so Earth should keep going down until no pitch
-            m ="GoDown"
-            #kd(au) # this might cause observed issue. display seems to stop refreshing, commented out to test
-          action.perform()
-          sys.stdout.write(str(i) + "\t" +str(e)  + "\t" + m + "\t" + cmd_string + "\r\n")
-      # end of pitch
-      # time.sleep(1.0) # allow time for Earth to render
-      # end of process
+    # end of process
     # end of try get data from mbit
   # end of while loop
-
   input("Press Enter to stop flying")
-
   # end of flight
+# end of Kaapers
 
