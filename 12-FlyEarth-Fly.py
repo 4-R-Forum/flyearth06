@@ -1,6 +1,5 @@
 import sys
 import datetime
-import serial
 import time
 import math
 #import selenium
