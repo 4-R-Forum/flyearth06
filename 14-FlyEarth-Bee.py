@@ -1,6 +1,5 @@
 import sys
 import datetime
-import serial
 import time
 import math
 #import selenium
@@ -27,8 +26,8 @@ global port, button, pitch, roll, k, rk # for flying
 global i, e, l, n, m # message for logging
 global t1, t2 # thresholds for actions
 i = 0 # set initial value
-t1 = 20
-t2 = 40
+t1 = 20 # threshold 1
+t2 = 40 # threshold 2
 
 # create selenium objects
 # $By = [OpenQA.Selenium.By]
@@ -56,7 +55,7 @@ pd =   Keys.PAGE_DOWN
 # start Earth in Chrome
 driver.get  ("https://earth.google.com/")
 # Confirm you are ready to fly
-input("Click through New Look popup")
+# input("Click through New Look popup") # no longer needed
 # press ctrl-i to select .kml file for starting point, from dialog
 kd(ctrl)
 action.send_keys("i")
@@ -76,7 +75,6 @@ for i in range(28):
   action.perform()
 ku(sh)
 """
-
 
 with KaspersMicrobit.find_one_microbit() as microbit:
   i = 0
@@ -120,47 +118,54 @@ with KaspersMicrobit.find_one_microbit() as microbit:
       l = n
     
     # start of bee control
-    # start of pitch
-    if pitch > t2:
-      # go up
-      # go forward 1
-      print("go up, forward")
-    elif pitch > t1 :
-        print("forward")
-    elif pitch < -t2 :
-      # go down
-      # go back 1
-      print("go down, back")
-    elif pitch < -t1 :
-      # go back 1
-      print("back")
-    else :
-      # stay
-      print("no forward/back")
-    # end of pitch, start of roll
+    """
+      Strategy:
+      to minimize jerkiness keep keys down until pitch/roll changes
+      this will fly fast until hover is reached, and all keys up
+      each go comment will need appropriate key up and down
+      roll takes priority, left right turn, supersedes pitch
+      if no roll forward/back or up/down
+    """
+    # start of roll
     if roll > t2:
       # go up
-      # go forward 1
+      # go forward
       print("turn right, go right")
     elif roll > t1 :
         print("go right")
     elif roll < -t2 :
       # go down
-      # go back 1
+      # go back
       print("turn left, go left")
     elif roll < -t1 :
-      # go back 1
+      # go back
       print("go left")
     else :
-      # stay
-      print("no left/right")
-    
-    time.sleep(2)
-
+      # hover
+      print("no roll")
+      # start of pitch
+      if pitch > t2:
+        # go up
+        # go forward 1
+        print("go up, forward")
+      elif pitch > t1 :
+          print("forward")
+      elif pitch < -t2 :
+        # go down
+        # go back 1
+        print("go down, back")
+      elif pitch < -t1 :
+        # go back 1
+        print("back")
+      else :
+        # stay
+        print("no forward/back")
+      # end of pitch  
+    time.sleep(1)
     # end of process
     # end of try get data from mbit
   # end of while loop
   input("Press Enter to stop flying")
   # end of flight
-# end of Kaapers
+# end of microbit
 
