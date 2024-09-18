@@ -100,16 +100,16 @@ with KaspersMicrobit.find_one_microbit() as microbit:
           button = 1 # look up
         if a == 0 and b > 0:
           button = -1 # look down
-        if a == 1 and b == 1:
+        if a > 0 and b > 0:
           button = 99 # stop Flying"
-        cmd_string = f"{button},{pitch},{roll}" # simulates prior serial string
+        cmd_string = f"{button},{int(pitch)},{int(roll)}" # simulates prior serial string
     except Exception as e:
       sys.stdout.write(str(e))
       break
     else:
       if button == 99:
         # Stop flying
-        exit
+        exit()
       # start process
       m = ""
       i += 1
@@ -128,38 +128,27 @@ with KaspersMicrobit.find_one_microbit() as microbit:
     """
     # start of roll
     if roll > t2:
-      # go up
-      # go forward
-      print("turn right, go right")
+      print(cmd_string + " turn right")
     elif roll > t1 :
-        print("go right")
+        print(cmd_string + " go right")
     elif roll < -t2 :
-      # go down
-      # go back
-      print("turn left, go left")
+      print(cmd_string + " turn left")
     elif roll < -t1 :
-      # go back
-      print("go left")
+      print(cmd_string + " go left")
     else :
       # hover
-      print("no roll")
+      print(cmd_string + " no roll")
       # start of pitch
       if pitch > t2:
-        # go up
-        # go forward 1
-        print("go up, forward")
+        print(cmd_string + " go up")
       elif pitch > t1 :
-          print("forward")
+          print(cmd_string + " go back")
       elif pitch < -t2 :
-        # go down
-        # go back 1
-        print("go down, back")
+        print(cmd_string + " go down")
       elif pitch < -t1 :
-        # go back 1
-        print("back")
+        print(cmd_string + " go forward")
       else :
-        # stay
-        print("no forward/back")
+        print(cmd_string + " hover")
       # end of pitch  
     time.sleep(1)
     # end of process
