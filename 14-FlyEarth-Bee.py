@@ -57,12 +57,14 @@ driver.get  ("https://earth.google.com/")
 # Confirm you are ready to fly
 # input("Click through New Look popup") # no longer needed
 # press ctrl-i to select .kml file for starting point, from dialog
+"""
 kd(ctrl)
 action.send_keys("i")
 ku(ctrl)
 action.perform()
 action.send_keys("O")
 action.perform()
+"""
 
 input("Press shift and arrow multiple times to show horizon at top of screen")
 """
@@ -87,6 +89,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
   test = 0
   while run :
     try:
+
       if debug == False :
         # request new data from mbit
         res = get_pitch_roll(microbit)
@@ -109,6 +112,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
     else:
       if button == 99:
         # Stop flying
+        print("Flight Stopped")
         exit()
       # start process
       m = ""
@@ -129,32 +133,61 @@ with KaspersMicrobit.find_one_microbit() as microbit:
     # start of roll
     if roll > t2:
       print(cmd_string + " turn right")
+      kd(sh)
+      kd(ar)
+      ku(ar)
+      ku(sh)
+      action.perform()
     elif roll > t1 :
         print(cmd_string + " go right")
+        kd(ar)
+        ku(ar)
+        action.perform()
     elif roll < -t2 :
       print(cmd_string + " turn left")
+      kd(sh)
+      kd(al)
+      ku(sh)
+      action.perform()
     elif roll < -t1 :
       print(cmd_string + " go left")
+      kd(al)
+      ku(al)
+      action.perform()
     else :
       # hover
       print(cmd_string + " no roll")
       # start of pitch
       if pitch > t2:
         print(cmd_string + " go up")
+        kd(sh)
+        kd(pd)
+        ku(pd)
+        ku(sh)
       elif pitch > t1 :
           print(cmd_string + " go back")
+          kd(ad)
+          ku(ad)
+          action.perform()
       elif pitch < -t2 :
         print(cmd_string + " go down")
+        kd(sh)
+        kd(pu)
+        ku(pu)
+        ku(sh)
+        action.perform()
       elif pitch < -t1 :
         print(cmd_string + " go forward")
+        kd(au)
+        ku(au)
+        action.perform()
       else :
         print(cmd_string + " hover")
       # end of pitch  
-    time.sleep(1)
+    # time.sleep(1)
     # end of process
     # end of try get data from mbit
   # end of while loop
-  input("Press Enter to stop flying")
   # end of flight
 # end of microbit
 
