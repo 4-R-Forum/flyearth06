@@ -25,6 +25,7 @@ global cmd_string # commands from microbit via serial, 'buttonA/B,pitch,roll'
 global port, button, pitch, roll, k, rk # for flying
 global i, e, l, n, m # message for logging
 global t1, t2 # thresholds for actions
+global lm # last move, characters d f b u l L r R
 i = 0 # set initial value
 t1 = 20 # threshold 1
 t2 = 40 # threshold 2
@@ -89,7 +90,6 @@ with KaspersMicrobit.find_one_microbit() as microbit:
   test = 0
   while run :
     try:
-
       if debug == False :
         # request new data from mbit
         res = get_pitch_roll(microbit)
@@ -115,12 +115,13 @@ with KaspersMicrobit.find_one_microbit() as microbit:
         print("Flight Stopped")
         exit()
       # start process
-      m = ""
-      i += 1
-      n = datetime.datetime.now()
-      e = n - l 
+      m = "" 
+      i += 1 
+      n = datetime.datetime.now() 
+      e = n - l  
       l = n
-    
+      lm = ""
+          
     # start of bee control
     """
       Strategy:
@@ -129,61 +130,103 @@ with KaspersMicrobit.find_one_microbit() as microbit:
       each go comment will need appropriate key up and down
       roll takes priority, left right turn, supersedes pitch
       if no roll forward/back or up/down
+
+      flying with ku for all moves makes flight jerky
+      leaving active key down would make flight smoother and quick
     """
     # start of roll
     if roll > t2:
-      print(cmd_string + " turn right")
-      kd(sh)
-      kd(ar)
-      ku(ar)
-      ku(sh)
-      action.perform()
-    elif roll > t1 :
-        print(cmd_string + " go right")
-        kd(ar)
-        ku(ar)
-        action.perform()
+      tm = "R"
+      #print(cmd_string + " turn right")
+      match lm:
+        case "":
+          kd(sh)
+          kd(al)
+        case "r":
+          ku(sh)
+          ku(al)
+          kd(ar)
+      lm = tm
+    elif roll > t1:
+      tm = "r"
+      match lm:
+        case "":
+          kd(ar)
+        case "R":
+          ku(sh)
+          ku(al)
+          kd(ar)
+      lm = tm
     elif roll < -t2 :
-      print(cmd_string + " turn left")
-      kd(sh)
-      kd(al)
-      ku(sh)
-      action.perform()
+      tm = "L"
+      match lm:
+        case "":
+          kd(sh)
+          kd(ar)
+        case "l":
+          kd(sh)
+          kd(ar)
+      lm = tm
     elif roll < -t1 :
-      print(cmd_string + " go left")
-      kd(al)
-      ku(al)
-      action.perform()
+      tm = "l"
+      match lm:
+        case "":
+          kd(al)
+        case "L":
+          ku(sh)
+      lm = tm
     else :
       # hover
-      print(cmd_string + " no roll")
+      lm = ""
+      # all move keys up
+      ku(sh)
+      ku(al)
+      ku(ar)
+      ku(pu)
+      ku(pd)
+      ku(ad)
+      ku(au)
       # start of pitch
       if pitch > t2:
-        print(cmd_string + " go up")
-        kd(sh)
-        kd(pd)
-        ku(pd)
-        ku(sh)
+        tm = "u"
+        match lm:
+          case "":
+            kd(pu)
+          case "b":
+            ku(sh)
+        lm = tm
       elif pitch > t1 :
-          print(cmd_string + " go back")
-          kd(ad)
-          ku(ad)
-          action.perform()
+        tm = "b"
+        match lm:
+          case "":
+            kd(ad)
+          case "u":
+            ku(ad)
+            kd(pu)
+        lm = tm
       elif pitch < -t2 :
-        print(cmd_string + " go down")
-        kd(sh)
-        kd(pu)
-        ku(pu)
-        ku(sh)
-        action.perform()
+        tm = "d"
+        match lm:
+          case "":
+            kd(pd)
+          case "f":
+            ku(pd)
+            kd(au)
+        lm = tm
       elif pitch < -t1 :
-        print(cmd_string + " go forward")
-        kd(au)
-        ku(au)
-        action.perform()
+        tm = "f"
+        match lm:
+          case "" :
+            kd(au)
+          case "d" :
+            ku(pd)
+            kd(au)
+        lm = tm
       else :
-        print(cmd_string + " hover")
-      # end of pitch  
+        lm = ""
+      print(cmd_string + " " + lm)
+      # end of pitch
+    action.perform()  
     # time.sleep(1)
     # end of process
     # end of try get data from mbit
