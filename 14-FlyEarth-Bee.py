@@ -7,6 +7,7 @@ from selenium import webdriver
 #from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 # import Kasper
 from kaspersmicrobit import KaspersMicrobit
 # Kasper mbit functions
@@ -26,16 +27,18 @@ global port, button, pitch, roll, k, rk # for flying
 global i, e, l, n, m # message for logging
 global t1, t2 # thresholds for actions
 global lm # last move, characters d f b u l L r R
+global wsize # window size
+global sx, sy, d, s # mouse moves, start x,y drag dist and speed
 i = 0 # set initial value
 t1 = 20 # threshold 1
 t2 = 40 # threshold 2
 
-# create selenium objects
-# $By = [OpenQA.Selenium.By]
+# create selenium objects)
 driver = webdriver.Chrome()
 # action accumulates keystrokes which are applied at the next perform()
 # and the chain is emptied
 action = ActionChains(driver)
+
 
 # functions for keys
 def kd(key):
@@ -78,6 +81,7 @@ for i in range(28):
   action.perform()
 ku(sh)
 """
+
 
 with KaspersMicrobit.find_one_microbit() as microbit:
   i = 0
@@ -191,7 +195,7 @@ with KaspersMicrobit.find_one_microbit() as microbit:
         tm = "u"
         match lm:
           case "":
-            kd(pu)
+            kd(pd)
           case "b":
             ku(sh)
         lm = tm
@@ -208,9 +212,9 @@ with KaspersMicrobit.find_one_microbit() as microbit:
         tm = "d"
         match lm:
           case "":
-            kd(pd)
+            kd(pu)
           case "f":
-            ku(pd)
+            ku(pu)
             kd(au)
         lm = tm
       elif pitch < -t1 :
